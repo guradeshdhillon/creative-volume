@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Ultimate Worst Volume UI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="os-container">
+        <h1>System Audio Player</h1>
+        
+        <div class="player">
+            <audio id="mainAudio" controls loop>
+                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+            </audio>
+            <p>Master Volume: <span id="volLevel">50</span>%</p>
+        </div>
+
+        <div id="controller-area">
+            <h3>Custom Controller Area</h3>
+            <p>Your creative UI will appear here.</p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
