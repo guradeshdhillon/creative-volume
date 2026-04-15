@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Freemium Volume Control (Compounding Edition)</title>
+    <style>
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background: #f8fafc;
+        color: #334155;
+      }
+
+      .freemium-container {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        text-align: center;
+        width: 350px;
+        border: 1px solid #e2e8f0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        margin-top: 0;
+        color: #0f172a;
+      }
+
+      .subtitle {
+        font-size: 0.9rem;
+        color: #64748b;
+        margin-bottom: 2rem;
+      }
+
+      .token-badge {
+        display: inline-block;
+        background: #ecfdf5;
+        color: #059669;
+        padding: 0.5rem 1rem;
+        border-radius: 999px;
+        font-weight: bold;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #a7f3d0;
+      }
+
+      .token-badge.empty {
+        background: #fef2f2;
+        color: #dc2626;
+        border-color: #fecaca;
+      }
+
+      .volume-display {
+        font-size: 4rem;
+        font-weight: 900;
+        margin-bottom: 1.5rem;
+        color: #3b82f6;
+        font-variant-numeric: tabular-nums;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        margin-bottom: 1rem;
+        cursor: pointer;
+      }
+
+      input[type="range"]:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+
+      .lock-message {
+        font-size: 0.85rem;
+        color: #dc2626;
+        font-weight: bold;
+        min-height: 20px;
+        margin-bottom: 1.5rem;
+      }
+
+      button {
+        width: 100%;
+        padding: 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+        background: #3b82f6;
+        color: white;
+      }
+
+      button:hover:not(:disabled) {
+        background: #2563eb;
+      }
+      button:disabled {
+        background: #cbd5e1;
+        color: #64748b;
+        cursor: not-allowed;
+        display: none;
+      }
+
+      /* Fake Ad Overlay */
+      #ad-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #0f172a;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+        color: white;
+      }
+
+      #ad-overlay h2 {
+        color: #fbbf24;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+      }
+      #ad-overlay p {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        text-align: center;
+        padding: 0 1rem;
+      }
+      #ad-timer {
+        font-size: 3.5rem;
+        font-weight: bold;
+        margin-top: 1rem;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="freemium-container">
+      <h1>Audio Player Pro</h1>
+      <div class="subtitle">Experience crystal clear sound.</div>
+
+      <div class="token-badge" id="token-badge">
+        Premium Adjustments: <span id="token-count">3</span>
+      </div>
+
+      <div class="volume-display" id="volume-display">50%</div>
+
+      <input type="range" id="volume-slider" min="0" max="100" value="50" />
+
+      <div class="lock-message" id="lock-message"></div>
+
+      <button id="ad-btn" disabled>Watch Ad for Random Volume (5s)</button>
+
+      <div id="ad-overlay">
+        <h2>SPONSORED MESSAGE</h2>
+        <p>
+          Enjoying audio? Upgrade to Premium today to unlock the volume slider!
+        </p>
+        <div id="ad-timer">5</div>
+      </div>
+    </div>
+
+    <script>
+      let tokens = 3;
+      let currentAdDuration = 5; // Starts at 5 seconds
+
+      const tokenBadge = document.getElementById("token-badge");
+      const tokenCount = document.getElementById("token-count");
+      const volumeDisplay = document.getElementById("volume-display");
+      const slider = document.getElementById("volume-slider");
+      const lockMessage = document.getElementById("lock-message");
+      const adBtn = document.getElementById("ad-btn");
+      const adOverlay = document.getElementById("ad-overlay");
+      const adTimer = document.getElementById("ad-timer");
+
+      function playConfirmationTone(vol) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.type = "sine";
+        osc.frequency.value = 440;
+        gain.gain.value = vol / 100;
+
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+      }
+
+      // Live update visual only while dragging
+      slider.addEventListener("input", (e) => {
+        volumeDisplay.innerText = `${e.target.value}%`;
+      });
+
+      // The 'change' event fires only when they let go of the mouse click
+      slider.addEventListener("change", (e) => {
+        if (tokens > 0) {
+          tokens--;
+          tokenCount.innerText = tokens;
+          playConfirmationTone(e.target.value);
+
+          if (tokens === 0) {
+            // Free trial is over
+            slider.disabled = true;
+            tokenBadge.className = "token-badge empty";
+            tokenBadge.innerText = "Premium Adjustments Depleted";
+            lockMessage.innerText = "Slider locked. Upgrade to unlock.";
+
+            // Show the ad button
+            adBtn.style.display = "block";
+            adBtn.disabled = false;
+          }
+        }
+      });
+
+      // Compounding Ad penalty logic
+      adBtn.addEventListener("click", () => {
+        adOverlay.style.display = "flex";
+        adBtn.disabled = true;
+        let timeLeft = currentAdDuration;
+        adTimer.innerText = timeLeft;
+
+        const countdown = setInterval(() => {
+          timeLeft--;
+          adTimer.innerText = timeLeft;
+
+          if (timeLeft <= 0) {
+            clearInterval(countdown);
+            adOverlay.style.display = "none";
+            adBtn.disabled = false;
+
+            // Increase the penalty for the next roll
+            currentAdDuration += 5;
+            adBtn.innerText = `Watch Ad for Random Volume (${currentAdDuration}s)`;
+
+            // Apply a completely random volume
+            const randomVol = Math.floor(Math.random() * 101);
+            volumeDisplay.innerText = `${randomVol}%`;
+            slider.value = randomVol; // Updates the visual slider position just to mock them
+
+            playConfirmationTone(randomVol);
+          }
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>
