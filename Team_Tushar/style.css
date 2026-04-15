@@ -1,0 +1,53 @@
+body {
+    background-color: #000;
+    color: #ccc;
+    font-family: 'Consolas', 'Courier New', monospace;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#terminal {
+    background-color: #0c0c0c;
+    border: 2px solid #333;
+    width: 80%;
+    max-width: 800px;
+    height: 60vh;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+#output p {
+    margin: 2px 0;
+    word-wrap: break-word;
+}
+
+.error { color: #ff5555; }
+.success { color: #55ff55; }
+.system { color: #cccccc; }
+
+#input-line {
+    display: flex;
+    margin-top: 10px;
+}
+
+#prompt {
+    margin-right: 8px;
+    color: #cccccc;
+}
+
+#cmd {
+    background: transparent;
+    border: none;
+    color: #cccccc;
+    font-family: inherit;
+    font-size: 1rem;
+    flex-grow: 1;
+    outline: none;
+}

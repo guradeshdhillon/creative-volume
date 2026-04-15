@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toxic CMD - Volume Control</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <audio id="audioTrack" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="terminal">
+        <div id="output">
+            <p>Microsoft Windows [Version 10.0.19045.3803]</p>
+            <p>(c) Microsoft Corporation. All rights reserved.</p>
+            <br>
+            <p>Type 'help' if you're a clueless little bitch.</p>
+            <p id="vol-display">Current Volume: [ 0% ]</p>
+        </div>
+        <div id="input-line">
+            <span id="prompt">C:\Users\Guest&gt;</span>
+            <input type="text" id="cmd" autocomplete="off" autofocus>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
