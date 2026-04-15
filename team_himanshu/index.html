@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbital Chaos Volume Controller - Revamped</title>
+    <!-- Sharp Matrix-style font -->
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #020a02;
+            color: #0f0;
+            font-family: 'Share Tech Mono', monospace;
+            overflow: hidden;
+            user-select: none;
+            /* Hacker Grid Background */
+            background-image: 
+                linear-gradient(rgba(0, 255, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* Matrix Scanlines */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.2),
+                rgba(0, 0, 0, 0.2) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* Subtle vignette to darken edges */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.85) 100%);
+            pointer-events: none;
+            z-index: 998;
+        }
+
+        #header {
+            position: absolute;
+            top: 30px;
+            width: 100%;
+            text-align: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .title {
+            font-size: 1.2rem;
+            letter-spacing: 12px;
+            text-transform: uppercase;
+            color: rgba(0, 255, 0, 0.6);
+            text-shadow: 0 0 5px #0f0;
+            margin-bottom: 5px;
+        }
+
+        .glitch-wrapper {
+            display: inline-block;
+            position: relative;
+        }
+
+        .glitch {
+            position: relative;
+            font-size: 7rem;
+            color: #0f0;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            margin: 0;
+            line-height: 1;
+        }
+
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: transparent;
+            opacity: 0.8;
+        }
+
+        .glitch::before {
+            left: 3px;
+            text-shadow: -2px 0 #0f0;
+            animation: glitch-anim-1 2s infinite linear alternate-reverse;
+            clip-path: inset(20% 0 80% 0);
+        }
+
+        .glitch::after {
+            left: -3px;
+            text-shadow: 2px 0 #00ffff;
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim-1 {
+            0% { clip-path: inset(20% 0 80% 0); }
+            20% { clip-path: inset(60% 0 10% 0); }
+            40% { clip-path: inset(40% 0 50% 0); }
+            60% { clip-path: inset(80% 0 5% 0); }
+            80% { clip-path: inset(10% 0 70% 0); }
+            100% { clip-path: inset(30% 0 20% 0); }
+        }
+
+        @keyframes glitch-anim-2 {
+            0% { clip-path: inset(10% 0 60% 0); transform: translate(1px, -1px); }
+            20% { clip-path: inset(30% 0 20% 0); transform: translate(-1px, 1px); }
+            40% { clip-path: inset(70% 0 10% 0); transform: translate(1px, 1px); }
+            60% { clip-path: inset(20% 0 50% 0); transform: translate(-1px, -1px); }
+            80% { clip-path: inset(50% 0 30% 0); transform: translate(0.5px, 0.5px); }
+            100% { clip-path: inset(5% 0 80% 0); transform: translate(-0.5px, -0.5px); }
+        }
+
+        #universe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Improved Black Hole with spinning dashed border */
+        .bh-container {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 130px; height: 130px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        #black-hole {
+            position: absolute;
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, #000 60%, rgba(0, 15, 0, 0.9) 100%);
+            box-shadow: 0 0 60px rgba(0, 255, 0, 0.4), inset 0 0 30px rgba(0, 255, 0, 0.6);
+            border: 3px dashed #0f0;
+            animation: spin-disk 10s linear infinite;
+        }
+        
+        @keyframes spin-disk {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #black-hole-text {
+            color: #0f0;
+            font-size: 14px;
+            text-shadow: 0 0 10px #0f0;
+            font-weight: bold;
+            animation: pulse 2s infinite alternate;
+            text-align: center;
+            z-index: 11;
+            letter-spacing: 2px;
+        }
+
+        @keyframes pulse {
+            from { opacity: 0.4; }
+            to { opacity: 1; text-shadow: 0 0 20px #0f0;}
+        }
+
+        .node {
+            position: absolute;
+            /* Let JS control top and left, we just center it around that point */
+            transform: translate(-50%, -50%);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 30, 0, 0.7);
+            color: #0f0;
+            border: 2px solid rgba(0, 255, 0, 0.5);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.4), inset 0 0 8px rgba(0, 255, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: crosshair;
+            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s, background 0.2s, box-shadow 0.2s, color 0.2s, border-color 0.2s;
+            z-index: 5;
+            backdrop-filter: blur(2px);
+        }
+
+        /* Expanding the detection area for hover so it triggers early */
+        .node::after {
+            content: '';
+            position: absolute;
+            top: -25px; right: -25px; bottom: -25px; left: -25px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        /* Improved frustrating Anti-UX hover effect - Turns RED as it evades! */
+        .node:hover {
+            transform: translate(-50%, -50%) scale(0.3) translate(110px, -110px) !important;
+            background: rgba(50, 0, 0, 0.9) !important;
+            color: #f00 !important;
+            border-color: #f00 !important;
+            box-shadow: 0 0 30px #f00, inset 0 0 10px #f00 !important;
+            opacity: 0.8 !important;
+        }
+
+        /* Click feedback */
+        .node.active-clicked {
+            background: #fff !important;
+            color: #000 !important;
+            box-shadow: 0 0 40px #fff !important;
+            border-color: #fff !important;
+        }
+
+        /* Reboot Button */
+        #reboot-btn {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            color: #0f0;
+            border: 2px solid #0f0;
+            background: rgba(0, 20, 0, 0.8);
+            font-size: 1rem;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            cursor: pointer;
+            z-index: 200;
+            transition: all 0.2s ease;
+        }
+
+        #reboot-btn:hover {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 20px #0f0;
+        }
+
+        #reboot-btn:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <header id="header">
+        <div class="title">System Volume</div>
+        <div class="glitch-wrapper">
+            <h1 id="vol-display" class="glitch" data-text="00">00</h1>
+        </div>
+    </header>
+
+    <div id="universe">
+        <div class="bh-container">
+            <div id="black-hole"></div>
+            <div id="black-hole-text">NULL<br>CORE</div>
+        </div>
+    </div>
+
+    <script>
+        const universe = document.getElementById('universe');
+        const volDisplay = document.getElementById('vol-display');
+        
+        // --- BUILT-IN MATRIX SYNTH ENGINE (Never stops or buffers) ---
+        let synthCtx = null;
+        let masterGain = null;
+
+        function initSynth() {
+            if (synthCtx) return;
+            synthCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            masterGain = synthCtx.createGain();
+            masterGain.gain.setValueAtTime(0, synthCtx.currentTime);
+            masterGain.connect(synthCtx.destination);
+
+            // Matrix Drone Layer
+            const osc = synthCtx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(55, synthCtx.currentTime); // Low A Drone
+            
+            const filter = synthCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(300, synthCtx.currentTime);
+            
+            // Sub-wobble
+            const lfo = synthCtx.createOscillator();
+            lfo.type = 'sine';
+            lfo.frequency.setValueAtTime(4, synthCtx.currentTime);
+            const lfoGain = synthCtx.createGain();
+            lfoGain.gain.setValueAtTime(100, synthCtx.currentTime);
+            lfo.connect(lfoGain);
+            lfoGain.connect(filter.frequency);
+
+            osc.connect(filter);
+            filter.connect(masterGain);
+
+            osc.start();
+            lfo.start();
+        }
+        // -------------------------------------------------------------
+
+        const nodes = [];
+        const holeRadius = 90;
+        let isVolumeLocked = false;
+
+        for (let i = 0; i <= 100; i++) {
+            const el = document.createElement('div');
+            el.className = 'node';
+            // Padded with zeroes for better terminal look
+            el.textContent = i < 10 ? '0' + i : i;
+            
+            // Physics logic: Volume Number = Proportional Speed
+            // 100 = Fastest, 0 = Slowest
+            const minSpeed = 0.002; 
+            const maxSpeed = 0.04; 
+            const speed = minSpeed + (i / 100) * (maxSpeed - minSpeed);
+            
+            // Distributed varying distances
+            const maxRadius = Math.min(window.innerWidth, window.innerHeight) / 2 - 40;
+            const radius = holeRadius + 30 + Math.random() * (maxRadius - holeRadius - 30);
+
+            // Removing random direction so the speed hierarchy is visibly obvious
+            const direction = 1;
+
+            const nodeObj = {
+                el,
+                angle: Math.random() * Math.PI * 2,
+                speed: speed * direction,
+                radius: radius,
+                vol: i
+            };
+
+            nodes.push(nodeObj);
+            universe.appendChild(el);
+
+            // Volume Change Handler
+            el.addEventListener('pointerdown', () => {
+                if (isVolumeLocked) return;
+                isVolumeLocked = true;
+
+                let v = i / 100;
+                
+                // Ensure synth is running
+                if (!synthCtx) initSynth();
+                if (synthCtx.state === 'suspended') synthCtx.resume();
+                
+                // Apply volume smoothly
+                // Limiting max output intentionally slightly to avoid distortion
+                masterGain.gain.setTargetAtTime(v * 0.4, synthCtx.currentTime, 0.05); 
+                
+                let displayVal = i < 10 ? '0' + i : i;
+                volDisplay.textContent = displayVal;
+                volDisplay.dataset.text = displayVal;
+                
+                // Visual feedback on successful click
+                volDisplay.style.color = '#f00';
+                volDisplay.style.textShadow = '0 0 20px #f00';
+                el.classList.add('active-clicked');
+                
+                document.querySelector('.title').innerHTML = "VOLUME LOCKED FOREVER<br><span style='font-size:10px'>Refresh to change</span>";
+                document.querySelector('.title').style.color = "#f00";
+                
+                // Keep the active class forever instead of removing it
+            });
+        }
+
+        // Animation Engine
+        function animate() {
+            const cx = window.innerWidth / 2;
+            const cy = window.innerHeight / 2;
+            const maxR = Math.min(window.innerWidth, window.innerHeight) / 2;
+
+            for (let i = 0; i < nodes.length; i++) {
+                const n = nodes[i];
+                n.angle += n.speed;
+                
+                // Small wobble for extra visual chaos
+                const wobble = Math.sin(n.angle * 5) * 8; 
+                const currentRadius = Math.min(n.radius + wobble, maxR);
+
+                const x = cx + Math.cos(n.angle) * currentRadius;
+                const y = cy + Math.sin(n.angle) * currentRadius;
+
+                n.el.style.left = `${x}px`;
+                n.el.style.top = `${y}px`;
+            }
+            requestAnimationFrame(animate);
+        }
+
+        // Start the continuous smooth animation
+        animate();
+
+        // Environment Glitch Effect
+        setInterval(() => {
+            if(Math.random() > 0.93) {
+                document.body.style.transform = `translate(${Math.random()*4-2}px, ${Math.random()*4-2}px)`;
+                setTimeout(() => {
+                    document.body.style.transform = "translate(0, 0)";
+                }, 40);
+            }
+        }, 500);
+    </script>
+    
+    <button id="reboot-btn" onclick="window.location.reload()">[ REBOOT SYSTEM ]</button>
+</body>
+</html>
