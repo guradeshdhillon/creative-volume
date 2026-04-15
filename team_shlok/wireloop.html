@@ -1,0 +1,453 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wire Loop Volume Controller</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #04050c;
+      --glow: #48f5ff;
+      --accent: #7c5cff;
+      --danger: #ff385d;
+      --text: #e8f7ff;
+      --muted: #8aa3b8;
+      --wire: #70f6d0;
+      --border: rgba(255, 255, 255, 0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, rgba(72,245,255,0.08), transparent 30%),
+                  radial-gradient(circle at bottom right, rgba(124,92,255,0.08), transparent 25%),
+                  linear-gradient(180deg, #02040a 0%, #04050c 100%);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app-shell {
+      width: min(1080px, 100%);
+      text-align: center;
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+      box-shadow: 0 24px 80px rgba(0,0,0,0.24);
+      backdrop-filter: blur(16px);
+    }
+
+    .hero-title {
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      color: #d3f6ff;
+      text-shadow: 0 0 18px rgba(72,245,255,0.28);
+    }
+
+    .volume-display {
+      font-size: clamp(1.25rem, 2vw, 2rem);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--glow);
+      margin-bottom: 6px;
+      text-shadow: 0 0 22px rgba(72,245,255,0.28);
+    }
+
+    .curve-label {
+      font-size: 0.85rem;
+      color: #5acbcc;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .canvas-frame {
+      position: relative;
+      display: inline-flex;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 26px;
+      overflow: hidden;
+      background: rgba(4,5,12,0.94);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 30px 80px rgba(0,0,0,0.25);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-width: 960px;
+      background: radial-gradient(circle at 20% 20%, rgba(72,245,255,0.08), transparent 22%),
+                  radial-gradient(circle at 85% 15%, rgba(124,92,255,0.08), transparent 20%),
+                  linear-gradient(180deg, rgba(10,14,28,1) 0%, rgba(2,4,10,1) 100%);
+    }
+
+    .controls {
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      font-size: 0.95rem;
+      padding: 12px 22px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: transform 180ms ease, background 220ms ease, box-shadow 220ms ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      background: rgba(72,245,255,0.14);
+      box-shadow: 0 0 20px rgba(72,245,255,0.16);
+    }
+
+    .hint {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.96rem;
+      line-height: 1.65;
+      max-width: 780px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .failure-flash {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,56,93,0.18);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 180ms ease;
+    }
+
+    .failure-flash.active { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="hero-title">Wire Loop Volume Controller</div>
+    <div id="volumeDisplay" class="volume-display">Volume: 0%</div>
+    <div id="curveLabel" class="curve-label">Curve: —</div>
+
+    <div class="canvas-frame">
+      <canvas id="gameCanvas" width="960" height="420"></canvas>
+      <div id="flash" class="failure-flash"></div>
+    </div>
+
+    <div class="controls">
+      <button id="playButton" class="btn">Play Audio to Test</button>
+      <button id="resetButton" class="btn">Reset Game</button>
+    </div>
+
+    <p class="hint">Move the ring from the left edge along the glowing wire. Keep the cursor within the safe path — stray too far and the game resets with a brand new curve! Place <code>IThinkTheyCallThisLove.mp3</code> in the same folder as this page.</p>
+  </div>
+
+  <audio id="gameAudio" preload="auto" loop src="IThinkTheyCallThisLove.mp3"></audio>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const volumeDisplay = document.getElementById('volumeDisplay');
+    const curveLabel = document.getElementById('curveLabel');
+    const playButton = document.getElementById('playButton');
+    const resetButton = document.getElementById('resetButton');
+    const flashOverlay = document.getElementById('flash');
+    const audio = document.getElementById('gameAudio');
+
+    const W = canvas.width;
+    const H = canvas.height;
+    const RING_R = 18;
+    const WIRE_THICK = 12;
+    const FAIL_DIST = RING_R + WIRE_THICK * 0.9;
+    const START_TOL = 65;
+
+    let wirePoints = [];
+    let mouse = { x: 0, y: 0, inside: false };
+    let currentVolume = 0;
+    let failure = false;
+    let started = false;
+
+    // ── Curve definitions ──────────────────────────────────────────────────────
+    const CURVES = [
+      {
+        name: 'Sine Wave',
+        fn: (t) => ({
+          x: 70 + t * (W - 140),
+          y: H * 0.5 + Math.sin(t * Math.PI * 2.5) * 120
+        })
+      },
+      {
+        name: 'Deep S-Curve',
+        fn: (t) => ({
+          x: 70 + t * (W - 140),
+          y: H * 0.5 + Math.sin(t * Math.PI * 1.2 - Math.PI / 2) * 130
+        })
+      },
+      {
+        name: 'Double Hump',
+        fn: (t) => ({
+          x: 70 + t * (W - 140),
+          y: H * 0.5 - Math.sin(t * Math.PI) * 110 * Math.sin(t * Math.PI * 2)
+        })
+      },
+      {
+        name: 'Zigzag',
+        fn: (t) => {
+          const saw = 2 * (t * 4 - Math.floor(t * 4 + 0.5));
+          return { x: 70 + t * (W - 140), y: H * 0.5 + saw * 110 };
+        }
+      },
+      {
+        name: 'High Dip',
+        fn: (t) => ({
+          x: 70 + t * (W - 140),
+          y: H * 0.5 + Math.sin(t * Math.PI) * 130 * Math.sign(Math.sin(t * Math.PI * 3))
+        })
+      },
+      {
+        name: 'Figure 8 Sweep',
+        fn: (t) => ({
+          x: 70 + t * (W - 140),
+          y: H * 0.5 + Math.sin(t * Math.PI * 3) * 110 * (1 - 0.4 * Math.cos(t * Math.PI * 2))
+        })
+      },
+      {
+        name: 'Gentle Ripple',
+        fn: (t) => ({
+          x: 70 + t * (W - 140),
+          y: H * 0.5 + Math.sin(t * Math.PI * 4) * 60 + Math.sin(t * Math.PI * 1.5) * 70
+        })
+      },
+      {
+        name: 'Canyon Dip',
+        fn: (t) => ({
+          x: 70 + t * (W - 140),
+          y: H * 0.5 - Math.exp(-Math.pow((t - 0.5) * 5, 2)) * 140 + Math.sin(t * Math.PI * 2) * 40
+        })
+      },
+      {
+        name: 'Tilted Wave',
+        fn: (t) => ({
+          x: 70 + t * (W - 140),
+          y: H * 0.5 + (t - 0.5) * 140 * 0.7 + Math.sin(t * Math.PI * 2.5) * 80
+        })
+      },
+      {
+        name: 'Spiral Stretch',
+        fn: (t) => ({
+          x: 70 + t * (W - 140),
+          y: H * 0.5 + Math.sin(t * Math.PI * 3.5) * (50 + t * 100)
+        })
+      }
+    ];
+
+    function buildWirePath() {
+      const curve = CURVES[Math.floor(Math.random() * CURVES.length)];
+      curveLabel.textContent = 'Curve: ' + curve.name;
+      wirePoints = [];
+      for (let i = 0; i <= 160; i++) {
+        const t = i / 160;
+        const pt = curve.fn(t);
+        pt.y = Math.max(FAIL_DIST + 4, Math.min(H - FAIL_DIST - 4, pt.y));
+        wirePoints.push(pt);
+      }
+    }
+
+    // ── Draw ──────────────────────────────────────────────────────────────────
+    function drawWire() {
+      // glow halo
+      ctx.save();
+      ctx.lineWidth = WIRE_THICK;
+      ctx.strokeStyle = 'rgba(112,246,208,0.18)';
+      ctx.shadowColor = 'rgba(112,246,208,0.12)';
+      ctx.shadowBlur = 24;
+      ctx.beginPath();
+      wirePoints.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+      ctx.stroke();
+      ctx.restore();
+
+      // core gradient line
+      ctx.save();
+      ctx.lineWidth = 5;
+      const g = ctx.createLinearGradient(0, 0, W, 0);
+      g.addColorStop(0, '#55f2ff');
+      g.addColorStop(0.45, '#7c5cff');
+      g.addColorStop(1, '#8af7c1');
+      ctx.strokeStyle = g;
+      ctx.shadowColor = 'rgba(112,246,208,0.4)';
+      ctx.shadowBlur = 28;
+      ctx.beginPath();
+      wirePoints.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+      ctx.stroke();
+      ctx.restore();
+
+      // endpoint dots
+      const endpoints = [wirePoints[0], wirePoints[wirePoints.length - 1]];
+      const colors = ['#55f2ff', '#8af7c1'];
+      endpoints.forEach((pt, idx) => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = colors[idx];
+        ctx.shadowColor = colors[idx];
+        ctx.shadowBlur = 14;
+        ctx.fill();
+        ctx.restore();
+      });
+    }
+
+    function drawRing() {
+      if (!mouse.inside) return;
+      ctx.save();
+      ctx.strokeStyle = failure ? 'rgba(255,56,93,0.95)' : 'rgba(72,245,255,0.92)';
+      ctx.lineWidth = 3.5;
+      ctx.shadowColor = failure ? 'rgba(255,56,93,0.5)' : 'rgba(72,245,255,0.3)';
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.arc(mouse.x, mouse.y, RING_R, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawProgressBar() {
+      if (!started || failure || !mouse.inside) return;
+      const prog = Math.max(0, Math.min(1, (mouse.x - 70) / (W - 140)));
+      const barY = H - 18;
+      const barX = 70, barW = W - 140;
+
+      ctx.save();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = 'rgba(72,245,255,0.2)';
+      ctx.beginPath();
+      ctx.moveTo(barX, barY);
+      ctx.lineTo(barX + barW, barY);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(72,245,255,0.7)';
+      ctx.beginPath();
+      ctx.moveTo(barX, barY);
+      ctx.lineTo(barX + prog * barW, barY);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // ── Geometry helpers ──────────────────────────────────────────────────────
+    function distToSegment(px, py, x1, y1, x2, y2) {
+      const dx = x2 - x1, dy = y2 - y1;
+      const lenSq = dx * dx + dy * dy;
+      if (lenSq === 0) return Math.hypot(px - x1, py - y1);
+      const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / lenSq));
+      return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+    }
+
+    function findWireDist(px, py) {
+      let min = Infinity;
+      for (let i = 0; i < wirePoints.length - 1; i++) {
+        const d = distToSegment(px, py, wirePoints[i].x, wirePoints[i].y, wirePoints[i+1].x, wirePoints[i+1].y);
+        if (d < min) min = d;
+      }
+      return min;
+    }
+
+    // ── Game logic ────────────────────────────────────────────────────────────
+    function updateVolume() {
+      if (!mouse.inside || failure) return;
+      const prog = Math.max(0, Math.min(1, (mouse.x - 70) / (W - 140)));
+      currentVolume = Math.round(prog * 100);
+      audio.volume = prog;
+      volumeDisplay.textContent = 'Volume: ' + currentVolume + '%';
+    }
+
+    function resetGame() {
+      failure = true;
+      currentVolume = 0;
+      audio.volume = 0;
+      started = false;
+      volumeDisplay.textContent = 'Volume: 0%';
+      flashOverlay.classList.add('active');
+      setTimeout(() => {
+        flashOverlay.classList.remove('active');
+        failure = false;
+        buildWirePath();
+      }, 320);
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, W, H);
+      drawWire();
+      drawProgressBar();
+
+      if (mouse.inside) {
+        const dist = findWireDist(mouse.x, mouse.y);
+        if (!started && mouse.x <= START_TOL && dist <= FAIL_DIST * 1.4) started = true;
+        if (started && dist > FAIL_DIST) resetGame();
+        if (started && !failure) updateVolume();
+      }
+
+      drawRing();
+      requestAnimationFrame(render);
+    }
+
+    // ── Events ────────────────────────────────────────────────────────────────
+    function getCanvasPos(e) {
+      const r = canvas.getBoundingClientRect();
+      return {
+        x: (e.clientX - r.left) * (W / r.width),
+        y: (e.clientY - r.top) * (H / r.height)
+      };
+    }
+
+    canvas.addEventListener('mouseenter', (e) => {
+      mouse.inside = true;
+      const pos = getCanvasPos(e);
+      mouse.x = pos.x; mouse.y = pos.y;
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      mouse.inside = false;
+      if (!failure) resetGame();
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      const pos = getCanvasPos(e);
+      mouse.x = pos.x; mouse.y = pos.y;
+    });
+
+    playButton.addEventListener('click', async () => {
+      try {
+        audio.volume = currentVolume / 100;
+        await audio.play();
+        playButton.textContent = 'Audio Playing';
+      } catch (err) {
+        console.error('Audio play failed', err);
+        playButton.textContent = 'Play Failed';
+      }
+    });
+
+    resetButton.addEventListener('click', resetGame);
+
+    audio.addEventListener('error', () => {
+      playButton.textContent = 'Audio Load Failed';
+    });
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    buildWirePath();
+    render();
+  </script>
+</body>
+</html>
