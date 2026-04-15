@@ -1,0 +1,14 @@
+.
+├── file.txt
+├── index.html
+├── README.md
+├── script.js
+├── style.css
+├── Team_Gravity
+│   ├── index.html
+│   ├── script.js
+│   └── style.css
+└── Team_SP
+    └── index.html
+
+3 directories, 9 files
