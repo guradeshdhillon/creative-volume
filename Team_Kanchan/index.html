@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏭 Volume Sweatshop — Work For Every Decibel</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Press+Start+2P&family=Permanent+Marker&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body id="body">
+
+    <canvas id="fx-canvas"></canvas>
+
+    <!-- Wrapper for chaos transforms -->
+    <div id="chaos-wrapper">
+
+    <!-- MAIN VOLUME HUD (always visible top) -->
+    <header class="vol-hud">
+        <div class="hud-left">
+            <span class="hud-label">TOTAL VOLUME</span>
+            <div class="hud-bar"><div class="hud-fill" id="hud-fill"></div></div>
+        </div>
+        <div class="hud-center">
+            <div class="hud-vol" id="hud-vol">0</div>
+            <div class="hud-pct">%</div>
+        </div>
+        <div class="hud-right">
+            <div class="hud-stat"><span class="stat-label">CLICKS</span><span class="stat-val" id="stat-clicks">0</span></div>
+            <div class="hud-stat"><span class="stat-label">SUFFERING</span><span class="stat-val" id="stat-time">0:00</span></div>
+        </div>
+    </header>
+
+    <!-- COMMENTATOR -->
+    <div class="commentator" id="commentator">
+        <span class="comm-mic">🎙️</span>
+        <span class="comm-text" id="comm-text">Welcome to the VOLUME SWEATSHOP! Every decibel must be EARNED. No free lunch. No free volume. 💀</span>
+    </div>
+
+    <!-- ACHIEVEMENT POPUP -->
+    <div class="achievement" id="achievement">
+        <span class="ach-icon" id="ach-icon">🏆</span>
+        <div class="ach-info">
+            <span class="ach-title" id="ach-title">Achievement Unlocked!</span>
+            <span class="ach-desc" id="ach-desc">First Click!</span>
+        </div>
+    </div>
+
+    <!-- MINI GAMES GRID -->
+    <main class="factory-floor">
+
+        <!-- STATION 1: THE CLICKER -->
+        <section class="station station-clicker">
+            <div class="station-header">
+                <span class="station-icon">🔨</span>
+                <h2>THE GRIND</h2>
+                <span class="station-reward">~0.2% per click</span>
+            </div>
+            <div class="station-body">
+                <p class="station-desc">Click. Click. Click. Each click earns a fraction of volume. Sometimes it takes away. That's life.</p>
+                <div class="clicker-stats">
+                    <span>Session Clicks: <b id="click-count">0</b></span>
+                    <span>Earned: <b id="click-earned">0.0</b>%</span>
+                </div>
+                <button class="big-clicker" id="big-clicker">
+                    <span class="clicker-emoji" id="clicker-emoji">🔨</span>
+                    <span class="clicker-label">CLICK TO EARN</span>
+                </button>
+                <div class="click-multiplier" id="click-multi">1x Multiplier</div>
+            </div>
+        </section>
+
+        <!-- STATION 2: MATH TORTURE -->
+        <section class="station station-math">
+            <div class="station-header">
+                <span class="station-icon">🧮</span>
+                <h2>BRAIN TAX</h2>
+                <span class="station-reward">+3% per correct</span>
+            </div>
+            <div class="station-body">
+                <p class="station-desc">Solve math to earn volume. Wrong answer = LOSE volume. The math gets harder as you earn more.</p>
+                <div class="math-problem" id="math-problem">
+                    <span class="math-q" id="math-q">7 × 8 = ?</span>
+                </div>
+                <div class="math-input-row">
+                    <input type="text" id="math-input" class="math-input" placeholder="?" autocomplete="off">
+                    <button class="math-submit" id="math-submit">SOLVE</button>
+                </div>
+                <div class="math-streak">Streak: <span id="math-streak">0</span> 🔥</div>
+            </div>
+        </section>
+
+        <!-- STATION 3: SPEED TYPE -->
+        <section class="station station-type">
+            <div class="station-header">
+                <span class="station-icon">⌨️</span>
+                <h2>TYPE TRIAL</h2>
+                <span class="station-reward">+5% per phrase</span>
+            </div>
+            <div class="station-body">
+                <p class="station-desc">Type the phrase EXACTLY. One mistake = start over. Capitalization matters. 😈</p>
+                <div class="type-phrase" id="type-phrase">"loading phrase..."</div>
+                <input type="text" id="type-input" class="type-input" placeholder="Start typing..." autocomplete="off" spellcheck="false">
+                <div class="type-progress">
+                    <div class="type-bar"><div class="type-fill" id="type-fill"></div></div>
+                    <span class="type-status" id="type-status">0 / 0 characters</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- STATION 4: GAMBLE -->
+        <section class="station station-gamble">
+            <div class="station-header">
+                <span class="station-icon">🎲</span>
+                <h2>DOUBLE OR NOTHING</h2>
+                <span class="station-reward">×2 or ×0</span>
+            </div>
+            <div class="station-body">
+                <p class="station-desc">Bet a % of your current volume on a coin flip. Win = double it. Lose = gone forever.</p>
+                <div class="gamble-bet-zone">
+                    <label class="gamble-label">Bet Amount:</label>
+                    <input type="range" id="gamble-slider" min="1" max="50" value="5" class="gamble-range">
+                    <span class="gamble-bet-val" id="gamble-bet-val">5%</span>
+                </div>
+                <div class="coin-display" id="coin-display">🪙</div>
+                <button class="gamble-btn" id="gamble-btn">FLIP THE COIN</button>
+                <div class="gamble-history" id="gamble-history"></div>
+            </div>
+        </section>
+
+        <!-- STATION 5: THE IMPOSSIBLE SLIDER -->
+        <section class="station station-slider">
+            <div class="station-header">
+                <span class="station-icon">🎚️</span>
+                <h2>CURSED SLIDER</h2>
+                <span class="station-reward">Set exact volume</span>
+            </div>
+            <div class="station-body">
+                <p class="station-desc">Drag the slider to your target. But it FIGHTS BACK — randomly jumping, reversing, and shrinking.</p>
+                <div class="target-display">Target: <span id="slider-target">50</span>%</div>
+                <button class="new-target-btn" id="new-target-btn">🎯 New Random Target</button>
+                <div class="cursed-slider-wrap" id="slider-wrap">
+                    <input type="range" id="cursed-range" min="0" max="100" value="50" class="cursed-range">
+                </div>
+                <div class="slider-val">Current: <span id="slider-val">50</span>%</div>
+                <button class="slider-lock-btn" id="slider-lock">LOCK IT IN (±15% accuracy needed)</button>
+            </div>
+        </section>
+
+        <!-- STATION 6: SACRIFICE -->
+        <section class="station station-sacrifice">
+            <div class="station-header">
+                <span class="station-icon">🔥</span>
+                <h2>THE SACRIFICE</h2>
+                <span class="station-reward">???</span>
+            </div>
+            <div class="station-body">
+                <p class="station-desc">Sacrifice some of your hard-earned volume to the Volume Gods. They might return it... doubled. Or not. 🙏</p>
+                <div class="sacrifice-amount">
+                    <label>Sacrifice:</label>
+                    <input type="number" id="sacrifice-input" class="sacrifice-num" min="1" max="50" value="5">
+                    <span>% of your volume</span>
+                </div>
+                <button class="sacrifice-btn" id="sacrifice-btn">🔥 OFFER TO THE GODS 🔥</button>
+                <div class="sacrifice-result" id="sacrifice-result"></div>
+                <div class="god-mood">Gods' Mood: <span id="god-mood">😐 Indifferent</span></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- AUDIO PLAYER (bottom) -->
+    <footer class="audio-footer">
+        <div class="audio-inner">
+            <span class="audio-label">🔊 suffering_soundtrack.mp3</span>
+            <audio id="audio" controls loop>
+                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+    </footer>
+
+    </div><!-- end chaos-wrapper -->
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
