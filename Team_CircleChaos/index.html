@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team CircleChaos — Perfectly Broken Volume</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <h1>🔴 Shape Chaos Volume</h1>
+            <p>A random shape appears. Draw it perfectly. The volume will reward your precision.</p>
+            <p class="pain">Hint: Every wobble is counted. Good luck.</p>
+        </header>
+
+        <section class="player-card">
+            <audio id="mainAudio" controls loop>
+                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+            </audio>
+            <div class="shape-display">
+                <canvas id="targetCanvas" width="200" height="200"></canvas>
+                <div class="shape-name" id="shapeName">Loading...</div>
+            </div>
+            <div class="meter">
+                <div class="meter-label">Shape Accuracy</div>
+                <div class="meter-bar">
+                    <div class="meter-fill" id="meterFill"></div>
+                </div>
+                <div class="meter-value" id="volumeValue">Volume: 0%</div>
+            </div>
+        </section>
+
+        <section class="canvas-card">
+            <div class="canvas-header">
+                <span>Draw here:</span>
+                <button id="clearBtn">Try again</button>
+            </div>
+            <canvas id="drawCanvas" width="420" height="420" touch-action="none"></canvas>
+            <div class="tips" id="feedback">Draw the shape shown above. The system judges every wobble.</div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
