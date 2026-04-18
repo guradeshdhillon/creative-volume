@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chaotic Swarm Anti-UX</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="start-screen">
+        <h1>CLICK ANYWHERE TO START</h1>
+    </div>
+
+    <div id="ad-overlay" class="hidden">
+        <h1 class="flash-text" id="ad-title">⚠️ PENALTY ⚠️</h1>
+        <h2>Mandatory 10-second break.</h2>
+        <img id="ad-gif" src="" alt="Punishment" width="400" style="border-radius: 10px; border: 5px solid red;">
+        <button id="skip-ad-btn" disabled>Skip Ad in 10...</button>
+    </div>
+
+    <div id="tos-modal" class="hidden">
+        <div class="tos-content">
+            <h1 style="color: #ffaa00;">⚠️ PITY PROTOCOL ACTIVATED ⚠️</h1>
+            <p>You have failed 15 times. You clearly lack the hand-eye coordination for this task.</p>
+            <p>Would you like to surrender your dignity and enable <b>EASY MODE</b>?</p>
+            <p style="font-size: 0.8rem; color: #888;">By clicking Accept, you agree to the Terms of Service.</p>
+            <button id="accept-tos-btn">I Accept</button>
+        </div>
+    </div>
+
+    <audio id="audioTrack" loop>
+        <source src="indian-song.mp3" type="audio/mpeg">
+    </audio>
+
+    <audio id="memeAudio" loop></audio>
+
+    <div class="header">
+        <h1>The Swarm Slider</h1>
+        <p>Catch the REAL slider to set your volume.<br><b>Miss, and it multiplies. Miss 5 times, you go to timeout.</b></p>
+        <h2 id="vol-display">Volume: 50%</h2>
+        <p id="miss-counter">Misses: 0 / 5</p>
+    </div>
+
+    <div id="dvd-container">
+        <div id="dvd-logo" class="real-target">VOL</div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
