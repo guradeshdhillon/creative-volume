@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOLUME DEVIL</title>
+    <link rel="stylesheet" href="style.css?v=11">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <audio id="bg-audio" loop>
+        <source src="https://incompetech.com/music/royalty-free/mp3-royaltyfree/Monkeys%20Spinning%20Monkeys.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="init-overlay" id="init-overlay">
+        <div class="init-box">
+            <h1>LEVEL DEVIL</h1>
+            <p>TURN ON SOUND IF YOU DARE</p>
+            <button id="init-btn">START LEVEL</button>
+        </div>
+    </div>
+
+    <!-- Level Devil style trap container -->
+    <div id="reactor-wrapper">
+        <div class="reactor-panel" id="reactor-panel">
+            
+            <div class="header">
+                <h2>VOLUME DEVIL</h2>
+                <div class="status-indicator" id="status-text">DEATH IMMINENT..</div>
+            </div>
+
+            <div class="volume-display-container">
+                <div class="volume-glitch" id="vol-value">0</div>
+                <div class="percent">LVL</div>
+            </div>
+
+            <div class="reactor-core-container">
+                <!-- Spikes on the sides of the track -->
+                <div class="spikes left-spikes"></div>
+                <div class="spikes right-spikes"></div>
+                
+                <div class="plasma-tube" id="slider-track">
+                    <div class="plasma-fluid" id="slider-fill"></div>
+                    <div class="reactor-thumb" id="slider-thumb">
+                        <div class="face">-_-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lock-grid" id="lock-grid">
+                <!-- Trap tiles will be generated here -->
+            </div>
+            
+            <div class="alert-box" id="alert-box">WARNING!</div>
+        </div>
+    </div>
+
+    <div id="humiliation-modal" class="humiliation-modal">
+        <img id="taunt-img" src="https://media.tenor.com/7A2I51_R-5IAAAAC/emotional-damage.gif" alt="Haha">
+        <div class="tease-text" id="taunt-text">SKILL ISSUE DETECTED</div>
+    </div>
+
+    <script src="script.js?v=18"></script>
+</body>
+</html>

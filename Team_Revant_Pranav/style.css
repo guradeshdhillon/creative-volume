@@ -1,0 +1,280 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root {
+    --bg-color: #2b2b2b;
+    --tile-color: #7b7b7b;
+    --blood-red: #ff2a2a;
+    --spike-color: #c0c0c0;
+    --text-color: #fff;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    font-family: 'Press Start 2P', cursive;
+}
+
+body {
+    background: repeating-linear-gradient(
+        45deg,
+        #222,
+        #222 20px,
+        #262626 20px,
+        #262626 40px
+    );
+    color: var(--text-color);
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+    cursor: default;
+}
+
+/* INIT Overlay */
+.init-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #000;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.init-box {
+    text-align: center;
+    border: 4px solid #fff;
+    padding: 2rem;
+    background: #111;
+}
+
+.init-box h1 {
+    font-size: 2rem;
+    color: var(--blood-red);
+    margin-bottom: 2rem;
+    text-shadow: 4px 4px 0 #880000;
+}
+
+.init-box p { font-size: 0.8rem; margin-bottom: 2rem; line-height: 1.5; color: #fff; }
+
+#init-btn {
+    padding: 15px 20px;
+    background: var(--tile-color);
+    border: 4px solid #fff;
+    color: #000;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+#init-btn:hover { background: #fff; }
+
+/* Moving Wrapper */
+#reactor-wrapper {
+    position: absolute;
+    width: 500px;
+    height: 650px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+/* Trap Panel */
+.reactor-panel {
+    width: 100%;
+    height: 100%;
+    background: #444;
+    border: 8px solid #000;
+    box-shadow: 10px 10px 0 #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.header {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.header h2 {
+    font-size: 1.2rem;
+    color: #fff;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.status-indicator {
+    font-size: 0.7rem;
+    color: var(--blood-red);
+    margin-top: 10px;
+}
+
+/* Volume Display */
+.volume-display-container {
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 1.5rem;
+}
+
+.volume-glitch {
+    font-size: 3rem;
+    color: #fff;
+    text-shadow: 4px 4px 0 #000;
+}
+
+.percent {
+    font-size: 1rem;
+    margin-left: 10px;
+    margin-bottom: 5px;
+}
+
+/* Level Devil Style Slider */
+.reactor-core-container {
+    width: 100px;
+    height: 300px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    margin-bottom: 2rem;
+    background: #222;
+    border: 4px solid #000;
+}
+
+/* The Chasm Track */
+.plasma-tube {
+    width: 10px;
+    height: 100%;
+    background: #000;
+    position: relative;
+    box-shadow: inset 2px 0 0 #fff, inset -2px 0 0 #fff;
+}
+
+/* Spikes inside the track bounds visually */
+.spikes {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 15px;
+    background-image: linear-gradient(135deg, transparent 50%, var(--spike-color) 50%, var(--spike-color) 100%);
+    background-size: 15px 15px;
+}
+
+.left-spikes { left: 0; transform: scaleX(-1); }
+.right-spikes { right: 0; }
+
+.plasma-fluid { /* Hidden in this theme */ display:none; }
+
+.reactor-thumb {
+    width: 60px;
+    height: 60px;
+    position: absolute;
+    bottom: 0%;
+    left: 50%;
+    transform: translate(-50%, 50%);
+    background: #ffe38f;
+    border: 4px solid #000;
+    cursor: pointer;
+    z-index: 20;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* The face on the thumb block */
+.face {
+    font-size: 0.8rem;
+    color: #000;
+}
+
+/* Trap Tiles (Buttons) */
+.lock-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 100%;
+}
+
+.lock-btn {
+    padding: 20px 0;
+    background: var(--tile-color);
+    border: 4px solid #000;
+    border-bottom: 8px solid #000;
+    color: #fff;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.05s, border-width 0.05s;
+}
+
+.lock-btn:active {
+    transform: translateY(4px);
+    border-bottom-width: 4px;
+}
+
+.lock-btn.trap-kill {
+    background: var(--blood-red);
+}
+
+/* Floating Alerts */
+.alert-box {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    color: var(--blood-red);
+    text-shadow: 4px 4px 0 #000;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.alert-box.show {
+    animation: bloodSplat 1s ease-out forwards;
+}
+
+@keyframes bloodSplat {
+    0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5) rotate(-10deg); }
+    10% { opacity: 1; transform: translate(-50%, -50%) scale(1.2) rotate(5deg); }
+    100% { opacity: 0; transform: translate(-50%, 0) scale(1) rotate(0deg); }
+}
+
+/* Humiliation Overlay (Level Devil Style Blood Screen) */
+.humiliation-modal {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(100, 0, 0, 0.9);
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s;
+    border: 10px solid #000;
+}
+
+.humiliation-modal.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.humiliation-modal img {
+    max-width: 70%;
+    border: 8px solid #000;
+    margin-bottom: 2rem;
+    image-rendering: pixelated;
+}
+
+.tease-text {
+    font-size: 1.5rem;
+    color: #fff;
+    text-shadow: 4px 4px 0 #000;
+    text-align: center;
+    line-height: 1.5;
+}
