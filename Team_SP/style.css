@@ -1,0 +1,200 @@
+:root {
+    --bg-deep: #081018;
+    --bg-mid: #102438;
+    --panel: rgba(14, 23, 40, 0.86);
+    --hot: #ff5d3d;
+    --acid: #d5ff4f;
+    --cyan: #63efff;
+    --text-main: #f7f4e8;
+    --text-dim: #9cb0c6;
+    --shadow: 0 0 0 2px #1d2c40, 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text-main);
+    font-family: "Press Start 2P", monospace;
+    background:
+        radial-gradient(circle at 15% 10%, rgba(255, 93, 61, 0.22), transparent 35%),
+        radial-gradient(circle at 85% 20%, rgba(99, 239, 255, 0.2), transparent 40%),
+        linear-gradient(160deg, var(--bg-deep), var(--bg-mid));
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.arena {
+    width: min(920px, 100%);
+    background: var(--panel);
+    border: 3px solid #2b3d57;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.arena::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.05),
+        rgba(255, 255, 255, 0.05) 1px,
+        transparent 2px,
+        transparent 4px
+    );
+    pointer-events: none;
+    opacity: 0.2;
+}
+
+.title {
+    margin: 0;
+    font-family: "Rubik Glitch", system-ui;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    letter-spacing: 1px;
+    color: var(--acid);
+    text-shadow: 2px 0 var(--hot), -2px 0 var(--cyan);
+    animation: wobble 2.6s infinite;
+}
+
+.subtitle {
+    margin: 12px 0 22px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    font-size: 0.65rem;
+}
+
+.hud {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(130px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.hud-item {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.35));
+    border: 2px solid #3a5375;
+    border-radius: 12px;
+    padding: 14px 10px;
+    text-align: center;
+}
+
+.label {
+    display: block;
+    color: var(--text-dim);
+    font-size: 0.6rem;
+    margin-bottom: 10px;
+}
+
+.hud-item span:last-child {
+    font-family: "Bangers", fantasy;
+    font-size: clamp(1.2rem, 2vw, 1.6rem);
+    letter-spacing: 1px;
+}
+
+.controls {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.btn {
+    border: 2px solid #29415d;
+    border-radius: 10px;
+    padding: 16px 12px;
+    background: #12263b;
+    color: var(--text-main);
+    font-family: "Press Start 2P", monospace;
+    font-size: 0.62rem;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: transform 0.08s ease, filter 0.15s ease, background 0.2s ease;
+}
+
+.btn:hover {
+    filter: brightness(1.15);
+}
+
+.btn:active {
+    transform: translateY(2px) scale(0.99);
+}
+
+.btn-damage {
+    background: linear-gradient(130deg, #3e1f1c, #6a2f26);
+    border-color: #ac4837;
+}
+
+.btn-point {
+    background: linear-gradient(130deg, #253615, #38631b);
+    border-color: #9fd83d;
+}
+
+.btn-level {
+    background: linear-gradient(130deg, #112e37, #1f4f67);
+    border-color: #5fd0ff;
+}
+
+.meme-ticker {
+    margin-top: 18px;
+    border: 2px dashed #415a7d;
+    border-radius: 10px;
+    padding: 12px;
+    font-family: "Bangers", fantasy;
+    letter-spacing: 1px;
+    color: #f7d478;
+    min-height: 52px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+}
+
+.flash {
+    animation: flash 0.25s ease-in-out 2;
+}
+
+@keyframes wobble {
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+    20% {
+        transform: rotate(-1deg);
+    }
+    50% {
+        transform: rotate(1deg);
+    }
+    80% {
+        transform: rotate(-0.5deg);
+    }
+}
+
+@keyframes flash {
+    0%,
+    100% {
+        filter: none;
+    }
+    50% {
+        filter: saturate(180%) brightness(1.2);
+    }
+}
+
+@media (max-width: 840px) {
+    .hud {
+        grid-template-columns: repeat(2, minmax(140px, 1fr));
+    }
+
+    .controls {
+        grid-template-columns: 1fr;
+    }
+
+    .btn {
+        font-size: 0.7rem;
+    }
+}

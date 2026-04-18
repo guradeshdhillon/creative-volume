@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bizarre Volume Arena</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Press+Start+2P&family=Rubik+Glitch&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="arena">
+        <h1 class="title">Bizarre Volume Arena</h1>
+        <p class="subtitle">No sliders. Only chaos, skill issues, and meme-tier audio control.</p>
+
+        <audio id="mainAudio" loop preload="auto"></audio>
+
+        <section class="hud">
+            <div class="hud-item">
+                <span class="label">Current Volume</span>
+                <span id="volumeDisplay">50%</span>
+            </div>
+            <div class="hud-item">
+                <span class="label">Health</span>
+                <span id="healthDisplay">100</span>
+            </div>
+            <div class="hud-item">
+                <span class="label">Points</span>
+                <span id="pointsDisplay">0</span>
+            </div>
+            <div class="hud-item">
+                <span class="label">Level</span>
+                <span id="levelDisplay">1</span>
+            </div>
+        </section>
+
+        <section class="controls">
+            <button id="btn-damage" class="btn btn-damage">Take Damage</button>
+            <button id="btn-powerup" class="btn btn-point">Collect Point</button>
+            <button id="btn-levelup" class="btn btn-level">Level Up</button>
+        </section>
+
+        <div id="memeTicker" class="meme-ticker">Press any button to start the cursed soundtrack.</div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
